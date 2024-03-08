@@ -1,6 +1,8 @@
 // Функція розмітки
+export const gallery = document.querySelector('.gallery');
+
 export function createMarkup(hits) {
-    return hits.map(({webformatURL, largeImageURL, tags, likes, views, comments, downloads}) =>
+    const markup = hits.map(({webformatURL, largeImageURL, tags, likes, views, comments, downloads}) =>
     `<li class = "gallery-item">
         <a href="${largeImageURL}">
              <img src="${webformatURL}" alt="${tags}" width="360"/>
@@ -23,5 +25,6 @@ export function createMarkup(hits) {
              <p>${downloads}</p>
            </li>
         </ul>
-     </li>`).join('')
+     </li>`).join('');
+     return gallery.insertAdjacentHTML('beforeend', markup)
 }
