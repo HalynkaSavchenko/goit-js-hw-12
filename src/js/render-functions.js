@@ -3,7 +3,7 @@ export const gallery = document.querySelector('.gallery');
 
 export function createMarkup(hits) {
     const markup = hits.map(({webformatURL, largeImageURL, tags, likes, views, comments, downloads}) =>
-    `<li class = "gallery-item">
+    `<li id = "item" class = "gallery-item">
         <a href="${largeImageURL}">
              <img src="${webformatURL}" alt="${tags}" width="360"/>
         </a>

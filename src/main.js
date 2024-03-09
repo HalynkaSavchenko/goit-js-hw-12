@@ -12,11 +12,11 @@ import { gallery } from './js/render-functions';
 const form = document.querySelector('.search-form');
 const loader = document.querySelector('.loader');
 const btnLoadMore = document.querySelector('.load-more');
-const item = document.querySelector('gallery-item')
+
 
 let query;
 let page = 1;
-let limit = 15;
+const limit = 15;
 
 
 // лайтбокс
@@ -29,19 +29,24 @@ const lightBox = new SimpleLightbox('.gallery a',
   });
 
   // scroll
-function smoothScroll() {
-  const itemSize = item.getBoundingClientRect();
-    window.scrollBy({
-      top: itemSize.height * 2,
-      behavior: 'smooth'
-    })
+  function smoothScroll() {
+    const item = document.getElementById('item');
+    const itemSize = item.getBoundingClientRect();
+    if (itemSize.height > 0) {
+      let scrollHeight = itemSize.height * 2;
+      window.scrollBy({
+        top: scrollHeight,
+        behavior: 'smooth'
+      });
+    } 
   }
 
   // кінець колекції
 function onLastPage(el) {
   const totalPages = Math.ceil(el.totalHits/limit);
-  if(page > totalPages){
+  if(page >= totalPages){
     btnLoadMore.classList.add('is-hidden');
+    page = 1;
     iziToast.info({
      message: "We're sorry, but you've reached the end of search results",
      fontSize: 'large',
@@ -64,6 +69,7 @@ async function onSearch(event) {
   gallery.innerHTML = '';
   query = event.target.elements.search.value.trim();
   if (query.length === 0) {
+    loader.classList.add('is-hidden')
     btnLoadMore.classList.add('is-hidden')
     return iziToast.error({
       message: 'Please, enter search value',
@@ -78,6 +84,7 @@ async function onSearch(event) {
   try{
     const data = await getImages(query, page);
       if (data.hits.length === 0) {
+        loader.classList.add('is-hidden')
         return iziToast.error({
             message: 'Sorry, there are no images matching your search query. Please try again!',
             fontSize: 'large',
@@ -92,10 +99,11 @@ async function onSearch(event) {
       createMarkup(data.hits);
       lightBox.refresh();
       btnLoadMore.classList.remove('is-hidden');
-      onLastPage(data)
+      onLastPage(data);
 
   }  
   catch(error) {
+    loader.classList.add('is-hidden');
     return iziToast.error({
       message: `'Oops... something went wrong' : ${error}`,
        fontSize: 'large',
@@ -105,6 +113,9 @@ async function onSearch(event) {
        timeout: 5000,
        backgroundColor: '#9a75f7'
     })
+    }
+    finally {
+      form.reset()
     }
 }
 
@@ -118,7 +129,7 @@ async function onLoadMore() {
   const data = await getImages(query, page);
   loader.classList.add('is-hidden');
   createMarkup(data.hits);
-  // smoothScroll();
+  smoothScroll();
   lightBox.refresh();
   btnLoadMore.classList.remove('is-hidden');
   onLastPage(data)
